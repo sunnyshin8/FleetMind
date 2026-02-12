@@ -7,6 +7,7 @@ Build a web-based "Mission Control" for operating robot fleets using natural lan
 -   **Frontend/Sim**: Next.js, Tailwind CSS, React Three Fiber (Visualizer).
 -   **AI Logic**: Google Gemini 2.0 Flash (via API).
 -   **Backend/State**: Next.js API Routes (Serverless) + Redis (State Persistence).
+-   **Analytics**: Python (Telemetry Monitoring & Data Analysis).
 -   **Infrastructure**: Vultr (Deployment).
 
 ## Setup

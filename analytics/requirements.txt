@@ -1,0 +1,4 @@
+redis==5.0.1
+pandas==2.2.0
+numpy==1.26.3
+colorama==0.4.6
