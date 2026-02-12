@@ -5,8 +5,8 @@ Build a web-based "Mission Control" for operating robot fleets using natural lan
 ## Tech Stack
 
 -   **Frontend/Sim**: Next.js, Tailwind CSS, React Three Fiber (Visualizer).
--   **AI Logic**: Google Gemini 1.5 Pro (via API).
--   **Backend/State**: Next.js API Routes (Serverless).
+-   **AI Logic**: Google Gemini 2.0 Flash (via API).
+-   **Backend/State**: Next.js API Routes (Serverless) + Redis (State Persistence).
 -   **Infrastructure**: Vultr (Deployment).
 
 ## Setup
@@ -21,3 +21,9 @@ Build a web-based "Mission Control" for operating robot fleets using natural lan
 -   **Natural Language Command**: Control robots with plain English.
 -   **3D Digital Twin**: Visualize robot movements in a simulated warehouse environment.
 -   **Mission Orchestration**: Convert high-level intents into precise coordinate-based missions.
+-   **Hybrid AI**: Combines LLM reasoning with local Q-Learning agents for optimization.
+
+---
+
+**Developed by Hemal Shingloo**
+Reach out at: [shingloo55@gmail.com](mailto:shingloo55@gmail.com)
