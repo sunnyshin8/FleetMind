@@ -1,19 +1,23 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-import { StateGraph, END, START } from "@langchain/langgraph";
+import { StateGraph, END, START, Annotation } from "@langchain/langgraph";
 import { z } from "zod";
 
-// 1. Define State
-interface AgentState {
-    input: string;
-    missions?: any[];
-    error?: string;
-}
-
-// 2. Define Model
-const model = new ChatGoogleGenerativeAI({
-    model: "gemini-2.0-flash",
-    apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY,
+// 1. Define State using Annotation (modern API)
+const AgentStateAnnotation = Annotation.Root({
+    input: Annotation<string>(),
+    missions: Annotation<any[] | undefined>(),
+    error: Annotation<string | undefined>(),
 });
+
+type AgentState = typeof AgentStateAnnotation.State;
+
+// 2. Define Model (lazy — only created when actually called)
+const getModel = () => {
+    return new ChatGoogleGenerativeAI({
+        model: "gemini-2.0-flash",
+        apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY,
+    });
+};
 
 // 3. Define Nodes
 
@@ -34,7 +38,7 @@ async function plannerNode(state: AgentState): Promise<Partial<AgentState>> {
     `;
 
     try {
-        const result = await model.invoke([
+        const result = await getModel().invoke([
             ["system", systemPrompt],
             ["human", state.input]
         ]);
@@ -70,13 +74,7 @@ async function validatorNode(state: AgentState): Promise<Partial<AgentState>> {
 }
 
 // 4. Define Graph
-const workflow = new StateGraph<AgentState>({
-    channels: {
-        input: null,
-        missions: null,
-        error: null
-    }
-})
+const workflow = new StateGraph(AgentStateAnnotation)
     .addNode("planner", plannerNode)
     .addNode("validator", validatorNode)
     .addEdge(START, "planner")
