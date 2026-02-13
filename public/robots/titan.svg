@@ -1,0 +1,31 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="yellowMetal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#facc15;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ca8a04;stop-opacity:1" />
+    </linearGradient>
+    <pattern id="stripes" width="20" height="20" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="10" height="20" transform="translate(0,0)" fill="#1e293b"/>
+    </pattern>
+  </defs>
+  <!-- Tracks -->
+  <rect x="40" y="180" width="176" height="40" rx="5" fill="#334155"/>
+  <circle cx="60" cy="200" r="12" fill="#94a3b8"/>
+  <circle cx="104" cy="200" r="12" fill="#94a3b8"/>
+  <circle cx="148" cy="200" r="12" fill="#94a3b8"/>
+  <circle cx="192" cy="200" r="12" fill="#94a3b8"/>
+  <!-- Body -->
+  <rect x="60" y="60" width="136" height="120" rx="8" fill="url(#yellowMetal)" stroke="#713f12" stroke-width="4"/>
+  <!-- Hazard Stripe -->
+  <rect x="60" y="150" width="136" height="20" fill="url(#stripes)" opacity="0.6"/>
+  <!-- Window -->
+  <rect x="80" y="80" width="96" height="40" fill="#0f172a" stroke="#ca8a04" stroke-width="2"/>
+  <!-- Eye -->
+  <rect x="100" y="90" width="56" height="10" fill="#ef4444"/>
+  <!-- Arms -->
+  <rect x="30" y="80" width="30" height="80" rx="5" fill="#475569"/>
+  <rect x="196" y="80" width="30" height="80" rx="5" fill="#475569"/>
+  <!-- Claw -->
+  <path d="M 45 160 L 45 190 L 65 190" stroke="#94a3b8" stroke-width="6" fill="none"/>
+  <path d="M 211 160 L 211 190 L 191 190" stroke="#94a3b8" stroke-width="6" fill="none"/>
+</svg>

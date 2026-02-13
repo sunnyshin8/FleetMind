@@ -1,12 +1,23 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import SimMap from "@/components/SimMap";
-import { Send, Map as MapIcon, Terminal, Activity, Mic } from "lucide-react";
-import { processCommand } from "@/lib/gemini";
-import { processCommandLangGraph } from "@/lib/langgraph";
+import dynamic from "next/dynamic";
+import { Send, Map as MapIcon, Terminal, Activity, Mic, ChevronDown, Bot } from "lucide-react";
 import { QLearningAgent } from "@/lib/q-learning";
+import { RobotType, ROBOT_CATALOG } from "@/components/Robot";
 import { cleanVoiceCommand } from "@/lib/nlp";
+import type { MapType } from "@/components/SimMap";
+
+// Dynamic import — Three.js Canvas cannot render during SSR
+const SimMap = dynamic(() => import("@/components/SimMap"), { ssr: false });
+
+const MAP_OPTIONS: { value: MapType; label: string; icon: string }[] = [
+    { value: "warehouse", label: "WAREHOUSE", icon: "🏭" },
+    { value: "village", label: "VILLAGE", icon: "🏡" },
+    { value: "townhouse", label: "TOWN HOUSE", icon: "🏘️" },
+    { value: "mountains", label: "MOUNTAINS", icon: "🏔️" },
+];
+
 
 interface Message {
     role: "user" | "bot";
@@ -19,12 +30,13 @@ export default function Home() {
         { role: "bot", text: "FleetMind initialized. Waiting for commands..." },
     ]);
     const [robots, setRobots] = useState([
-        { id: "A", position: [0, 0, 0] as [number, number, number], color: "hotpink", battery: 100 },
-        { id: "B", position: [-5, 0, 5] as [number, number, number], color: "cyan", battery: 100 }
+        { id: "A", position: [0, 0, 0] as [number, number, number], color: "hotpink", battery: 100, robotType: "ironhog" as RobotType },
+        { id: "B", position: [-5, 0, 5] as [number, number, number], color: "cyan", battery: 100, robotType: "titan" as RobotType }
     ]);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isListening, setIsListening] = useState(false);
     const [liveMode, setLiveMode] = useState(false);
+    const [currentMap, setCurrentMap] = useState<MapType>("warehouse");
 
     const [trainingMode, setTrainingMode] = useState(false);
     const agentRef = useRef(new QLearningAgent());
@@ -168,9 +180,13 @@ export default function Home() {
         setIsProcessing(true);
 
         try {
-            // Updated to use LangGraph Agent
-            // const response = await processCommand(input); // Legacy
-            const response = await processCommandLangGraph(input);
+            // Call the server-side API route (LangGraph runs server-side only)
+            const res = await fetch("/api/command", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ command: input }),
+            });
+            const response = await res.json();
 
             if (response.action === "error" || !response.missions || !Array.isArray(response.missions)) {
                 setMessages(prev => [...prev, { role: "bot", text: response.message || "Unknown error." }]);
@@ -309,14 +325,51 @@ export default function Home() {
 
             {/* RIGHT PANEL: 3D SIM */}
             <div className="flex-1 relative bg-slate-950">
-                <div className="absolute top-6 right-6 z-10 flex space-x-2">
-                    <div className="bg-slate-900/80 backdrop-blur p-2 px-4 rounded-lg border border-slate-700 text-xs text-slate-300 shadow-lg flex items-center space-x-2">
-                        <MapIcon className="w-4 h-4 text-indigo-400" />
-                        <span>WAREHOUSE_ZONE_A</span>
+                <div className="absolute top-4 right-4 z-10 flex items-center space-x-3">
+                    {/* Robot Selector Dropdowns */}
+                    {robots.map((robot) => (
+                        <div key={robot.id} className="relative">
+                            <select
+                                value={robot.robotType || "ironhog"}
+                                onChange={(e) => {
+                                    setRobots(prev => prev.map(r =>
+                                        r.id === robot.id ? { ...r, robotType: e.target.value as RobotType } : r
+                                    ));
+                                }}
+                                className="appearance-none bg-slate-900/90 backdrop-blur-md text-slate-200 text-xs font-bold tracking-wider px-4 py-2.5 pr-8 rounded-lg border border-slate-600 hover:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 cursor-pointer transition-all shadow-lg"
+                            >
+                                {Object.entries(ROBOT_CATALOG).map(([key, val]) => (
+                                    <option key={key} value={key}>
+                                        {val.icon}  {val.name} ({robot.id})
+                                    </option>
+                                ))}
+                            </select>
+                            <Bot className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-emerald-400 pointer-events-none" />
+                        </div>
+                    ))}
+
+                    {/* Map Selector Dropdown */}
+                    <div className="relative">
+                        <select
+                            value={currentMap}
+                            onChange={(e) => setCurrentMap(e.target.value as MapType)}
+                            className="appearance-none bg-slate-900/90 backdrop-blur-md text-slate-200 text-xs font-bold tracking-wider px-4 py-2.5 pr-8 rounded-lg border border-slate-600 hover:border-indigo-500/50 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 cursor-pointer transition-all shadow-lg"
+                        >
+                            {MAP_OPTIONS.map((opt) => (
+                                <option key={opt.value} value={opt.value}>
+                                    {opt.icon}  {opt.label}
+                                </option>
+                            ))}
+                        </select>
+                        <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+                    </div>
+                    <div className="bg-slate-900/80 backdrop-blur p-2 px-3 rounded-lg border border-slate-700 text-xs text-slate-400 shadow-lg flex items-center space-x-2">
+                        <MapIcon className="w-3.5 h-3.5 text-indigo-400" />
+                        <span>{MAP_OPTIONS.find(m => m.value === currentMap)?.label}_ZONE_A</span>
                     </div>
                 </div>
                 <div className="h-full w-full p-4">
-                    <SimMap robots={robots} />
+                    <SimMap robots={robots} mapType={currentMap} />
                 </div>
             </div>
         </main>

@@ -1,0 +1,33 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="brassGrad" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" style="stop-color:#fcd34d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#b45309;stop-opacity:1" />
+    </radialGradient>
+    <radialGradient id="copperGrad" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" style="stop-color:#fdba74;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#9a3412;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+  <!-- Gear Body -->
+  <circle cx="128" cy="128" r="70" fill="url(#brassGrad)" stroke="#78350f" stroke-width="4"/>
+  <circle cx="128" cy="128" r="30" fill="none" stroke="#78350f" stroke-width="4" stroke-dasharray="10 6"/>
+  
+  <!-- Steam Vent -->
+  <rect x="110" y="40" width="36" height="20" fill="#4b5563"/>
+  <path d="M 118 40 L 115 10 M 128 40 L 128 5 M 138 40 L 141 10" stroke="#9ca3af" stroke-width="2" opacity="0.5"/>
+  
+  <!-- One Big Eye -->
+  <circle cx="128" cy="128" r="24" fill="#1f2937" stroke="#b45309" stroke-width="4"/>
+  <circle cx="128" cy="128" r="10" fill="#fbbf24"/>
+  
+  <!-- Legs -->
+  <path d="M 80 180 L 60 220 L 90 220" stroke="#9a3412" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 176 180 L 196 220 L 166 220" stroke="#9a3412" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Arms -->
+  <path d="M 60 110 L 30 140" stroke="#b45309" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="30" cy="140" r="12" fill="#d97706"/>
+  <path d="M 196 110 L 226 140" stroke="#b45309" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="226" cy="140" r="12" fill="#d97706"/>
+</svg>
