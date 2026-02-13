@@ -198,12 +198,12 @@ function TrafficLight({ position }: { position: [number, number, number] }) {
 
 // --- Main Town House Map ---
 
-export default function TownHouseMap() {
+export default function TownHouseMap({ tileOffset }: { tileOffset?: [number, number, number] }) {
     return (
-        <group>
+        <group position={tileOffset || [0, 0, 0]}>
             {/* Ground */}
             <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
-                <planeGeometry args={[50, 50]} />
+                <planeGeometry args={[28, 28]} />
                 <meshStandardMaterial color="#4a5d4a" roughness={0.95} />
             </mesh>
 

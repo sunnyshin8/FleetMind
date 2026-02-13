@@ -153,12 +153,12 @@ function CeilingLight({ position }: { position: [number, number, number] }) {
 
 // --- Main Warehouse Map ---
 
-export default function WarehouseMap() {
+export default function WarehouseMap({ tileOffset }: { tileOffset?: [number, number, number] }) {
     return (
-        <group>
+        <group position={tileOffset || [0, 0, 0]}>
             {/* Concrete Floor */}
             <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
-                <planeGeometry args={[40, 40]} />
+                <planeGeometry args={[28, 28]} />
                 <meshStandardMaterial color="#4a5568" roughness={0.95} metalness={0.05} />
             </mesh>
 
@@ -197,26 +197,10 @@ export default function WarehouseMap() {
             <Crate position={[1.5, 0.6, -10]} size={[0.8, 0.6, 0.8]} color="#7a5c2e" />
             <Pallet position={[-1.5, 0, -10]} />
 
-            {/* Dock doors on back wall */}
+            {/* Dock doors on back edge */}
             <RollUpDoor position={[-6, 0, -14]} />
             <RollUpDoor position={[0, 0, -14]} />
             <RollUpDoor position={[6, 0, -14]} />
-
-            {/* Back wall */}
-            <mesh position={[0, 3, -14.1]} receiveShadow>
-                <boxGeometry args={[40, 6, 0.2]} />
-                <meshStandardMaterial color="#2d3748" roughness={0.9} />
-            </mesh>
-
-            {/* Side walls */}
-            <mesh position={[-14.1, 3, 0]} receiveShadow>
-                <boxGeometry args={[0.2, 6, 40]} />
-                <meshStandardMaterial color="#2d3748" roughness={0.9} />
-            </mesh>
-            <mesh position={[14.1, 3, 0]} receiveShadow>
-                <boxGeometry args={[0.2, 6, 40]} />
-                <meshStandardMaterial color="#2d3748" roughness={0.9} />
-            </mesh>
 
             {/* Forklifts */}
             <Forklift position={[0, 0, 2]} />

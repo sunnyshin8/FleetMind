@@ -1,7 +1,7 @@
 "use client";
 
-import { useFrame, useLoader } from "@react-three/fiber";
-import { useRef, useMemo, Suspense, Component, ReactNode } from "react";
+import { useFrame } from "@react-three/fiber";
+import { useRef, useMemo, useState, useEffect } from "react";
 import * as THREE from "three";
 import { Billboard, Text } from "@react-three/drei";
 
@@ -24,35 +24,36 @@ interface RobotProps {
     robotType?: RobotType;
 }
 
-// --- Error Boundary for texture load failures ---
-class TextureErrorBoundary extends Component<
-    { children: ReactNode; fallback: ReactNode },
-    { hasError: boolean }
-> {
-    constructor(props: { children: ReactNode; fallback: ReactNode }) {
-        super(props);
-        this.state = { hasError: false };
-    }
-    static getDerivedStateFromError() {
-        return { hasError: true };
-    }
-    render() {
-        if (this.state.hasError) return this.props.fallback;
-        return this.props.children;
-    }
+// --- Safe texture loader hook (no crash on missing files) ---
+function useRobotTexture(robotType: RobotType): THREE.Texture | null {
+    const [texture, setTexture] = useState<THREE.Texture | null>(null);
+
+    useEffect(() => {
+        let disposed = false;
+        const loader = new THREE.TextureLoader();
+        loader.load(
+            `/robots/${robotType}.png`,
+            (tex) => {
+                if (!disposed) {
+                    tex.minFilter = THREE.LinearFilter;
+                    tex.magFilter = THREE.LinearFilter;
+                    tex.colorSpace = THREE.SRGBColorSpace;
+                    setTexture(tex);
+                }
+            },
+            undefined,
+            () => { if (!disposed) setTexture(null); }
+        );
+        return () => { disposed = true; };
+    }, [robotType]);
+
+    return texture;
 }
 
 // --- The billboard sprite robot (loads PNG texture) ---
 function SpriteRobot({ robotType, battery = 100 }: { robotType: RobotType; battery: number }) {
     const catalog = ROBOT_CATALOG[robotType];
-    const texture = useLoader(THREE.TextureLoader, `/robots/${robotType}.png`);
-
-    useMemo(() => {
-        texture.minFilter = THREE.LinearFilter;
-        texture.magFilter = THREE.LinearFilter;
-        texture.colorSpace = THREE.SRGBColorSpace;
-    }, [texture]);
-
+    const texture = useRobotTexture(robotType);
     const meshRef = useRef<THREE.Mesh>(null);
 
     // Gentle bobbing
@@ -61,6 +62,11 @@ function SpriteRobot({ robotType, battery = 100 }: { robotType: RobotType; batte
             meshRef.current.position.y = 1.5 + Math.sin(state.clock.elapsedTime * 2) * 0.08;
         }
     });
+
+    // If texture is null, it means loading failed or it's not yet loaded.
+    if (!texture) {
+        return null;
+    }
 
     return (
         <Billboard follow lockX={false} lockY={false} lockZ={false}>
@@ -187,14 +193,10 @@ export default function Robot({ position, color = "hotpink", battery = 100, robo
                 <meshBasicMaterial color={catalog.color} transparent opacity={0.15} depthWrite={false} />
             </mesh>
 
-            {/* Sprite with error boundary → placeholder if PNG missing */}
-            <TextureErrorBoundary
-                fallback={<PlaceholderRobot robotType={robotType} battery={battery} />}
-            >
-                <Suspense fallback={<PlaceholderRobot robotType={robotType} battery={battery} />}>
-                    <SpriteRobot robotType={robotType} battery={battery} />
-                </Suspense>
-            </TextureErrorBoundary>
+            {/* Sprite robot — shows if PNG loaded, otherwise null */}
+            <SpriteRobot robotType={robotType} battery={battery} />
+            {/* Placeholder always exists as base — SpriteRobot overlays it when texture loads */}
+            <PlaceholderRobot robotType={robotType} battery={battery} />
         </group>
     );
 }

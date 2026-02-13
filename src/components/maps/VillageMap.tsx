@@ -158,12 +158,12 @@ function HayBale({ position }: { position: [number, number, number] }) {
 
 // --- Main Village Map ---
 
-export default function VillageMap() {
+export default function VillageMap({ tileOffset }: { tileOffset?: [number, number, number] }) {
     return (
-        <group>
+        <group position={tileOffset || [0, 0, 0]}>
             {/* Grass ground */}
             <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
-                <planeGeometry args={[50, 50]} />
+                <planeGeometry args={[28, 28]} />
                 <meshStandardMaterial color="#3a7d44" roughness={0.95} />
             </mesh>
 
