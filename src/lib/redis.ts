@@ -1,33 +1,23 @@
-import Redis from "ioredis";
+import { Redis } from "@upstash/redis";
 
 // In-memory fallback when Redis is not available
 const memoryStore = new Map<string, string>();
 
-const createRedisClient = () => {
-    const url = process.env.UPSTASH_REDIS_REST_URL || "redis://localhost:6379";
-    try {
-        const client = new Redis(url, {
-            maxRetriesPerRequest: 1,
-            retryStrategy: () => null, // Don't retry — fail fast
-            lazyConnect: true,
-            connectTimeout: 3000,
-        });
-        client.on("error", () => {
-            // Silently swallow connection errors — we fall back to memory store
-        });
-        return client;
-    } catch {
-        return null;
-    }
-};
-
 let _redis: Redis | null = null;
 
-const getRedis = () => {
-    if (!_redis) {
-        _redis = createRedisClient();
+const getRedis = (): Redis | null => {
+    if (_redis) return _redis;
+    const url = process.env.UPSTASH_REDIS_REST_URL;
+    const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+    if (url && token) {
+        try {
+            _redis = new Redis({ url, token });
+            return _redis;
+        } catch {
+            return null;
+        }
     }
-    return _redis;
+    return null;
 };
 
 // Wrapper that falls back to in-memory if Redis is unavailable
@@ -36,10 +26,8 @@ export const redis = {
         try {
             const client = getRedis();
             if (client) {
-                await client.connect().catch(() => { });
-                if (client.status === "ready") {
-                    return await client.get(key);
-                }
+                const data = await client.get<string>(key);
+                return data ?? null;
             }
         } catch {
             // fall through
@@ -50,7 +38,7 @@ export const redis = {
         memoryStore.set(key, value);
         try {
             const client = getRedis();
-            if (client && client.status === "ready") {
+            if (client) {
                 await client.set(key, value);
             }
         } catch {
