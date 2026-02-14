@@ -312,6 +312,7 @@ export default function Home() {
 
     // Keyboard Controls: WASD / Arrow Keys to move selected robot
     const handleKeyboardMove = useCallback((e: KeyboardEvent) => {
+
         // Don't move if user is typing in the input field
         if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') return;
         if (trainingMode) return;
@@ -353,6 +354,7 @@ export default function Home() {
             ];
             const updatedRobot = {
                 ...r,
+                position: newPos,
                 battery: Math.max(0, r.battery - batteryDrain)
             };
             // Sync my movement
